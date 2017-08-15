@@ -27,6 +27,10 @@ import org.apache.poi.ss.usermodel.Row;
 
 public class FileCreator {   
     
+    private String path_dev = "/Volumes/Automations/bin/OpenDirectoryDatatransfer/";
+    private String path_prod = "/Users/administrator/Automations/bin/OpenDirectoryDatatransfer/";
+
+    
     public void FileGenerator() throws SQLException{
         Connection con = (Connection) DriverManager.getConnection("jdbc:mysql://10.0.3.8:3306/aprendoz_desarrollo", "root", "irc4Quag");
         List data = new ArrayList();
@@ -50,9 +54,8 @@ public class FileCreator {
                                                 "INNER JOIN vista_alumnos_activos_201718 ON insc_persona_grupo_familiar.Persona_Id_Persona = vista_alumnos_activos_201718.Id_Persona\n" +
                                                 "LEFT JOIN matricula m ON m.Persona_Id_Persona = vista_alumnos_activos_201718.Id_Persona\n" +
                                                 "\n" +
-                                                "WHERE vista_alumnos_activos_201718.Id_Curso >= 10006 and vista_alumnos_activos_201718.Id_Curso <= 10014 AND m.SY_Id_SY = 8 #AND m.fecha_matricula = CURDATE()\n" +
+                                                "WHERE vista_alumnos_activos_201718.Id_Curso >= 10006 and vista_alumnos_activos_201718.Id_Curso <= 10014 AND m.SY_Id_SY = 8 AND m.fecha_matricula = CURDATE() #AND m.fecha_matricula > '2017-08-01' \n" +
                                                 "GROUP BY vista_alumnos_activos_201718.Id_Grado, vista_alumnos_activos_201718.Id_Persona");
-                
             while (rs.next()) {
                             
                             String logdate = dateFileName();
@@ -99,10 +102,9 @@ public class FileCreator {
             }
             
             String file_date = dateFileName();
-            //writeToFile(data, "/Volumes/sapiens/INTERFASE/PSE_FILES/PSE_FILE_"+file_date+".txt");
-            writeToFile(data, "/Volumes/Automations/bin/OpenDirectoryDatatransfer/DataOpenDirectory_"+file_date+".csv");
-            //mailFile(data, "/Volumes/sapiens/INTERFASE/PSE_FILES/PSE_FILE_MAIL.txt");
-            //logFile(logdata, "/Volumes/sapiens/INTERFASE/PSE_FILES/logs/pse_log_"+file_date+".txt");
+            writeToFile(data, path_dev+ "/DataOpenDirectory_"+file_date+".csv");
+            //mailFile(data, "/Volumes/Automations/bin/OpenDirectoryDatatransfer/DataOpenDirectory_maillog_"+file_date+".txt");
+            logFile(logdata,  path_dev+ "/DataOpenDirectory_log_"+file_date+".txt");
                 
             System.out.println("Extrayendo información de la base de datos...");
             
@@ -115,7 +117,6 @@ public class FileCreator {
          }finally{
             con.close();
         }   
-        System.out.println("Success: UPDATE mensualidad in table ***importacion_cartera***"); 
     }
     
     private static void writeToFile(java.util.List list, String path) {
@@ -162,24 +163,9 @@ public class FileCreator {
     
     private static String dateFileName(){
         Date today = new Date();
-        Format formatter = new SimpleDateFormat("yyyyMMdd_HHmm");
+        Format formatter = new SimpleDateFormat("yyyyMMdd_HH");
         String s = formatter.format(today);
         
         return s;
     } 
-    
-    public void deleteFileTxt(){
-        
-        try{
-    		File file = new File("/Volumes/sapiens/INTERFASE/PSE_FILES/PSE_FILE_MAIL.txt");
-                
-    		if(file.delete()){
-    			System.out.println(file.getName() + " is deleted!");
-    		}else{
-    			System.out.println("Delete operation is failed.");
-    		}
-    	}catch(Exception e){
-    		e.printStackTrace();
-    	}
-    }
 }
